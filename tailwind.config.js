@@ -2,11 +2,11 @@
 module.exports = {
   darkMode: ["class"],
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
-	],
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
   theme: {
     container: {
       center: true,
@@ -16,6 +16,9 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        special: ["var(--font-bruno-ace-sc)"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -24,9 +27,12 @@ module.exports = {
         foreground: "hsl(var(--foreground))",
         monochrome: {
           DEFAULT: "hsl(var(--monochrome-color))",
-          "with-bg-opacity": "hsla(var(--monochrome-color) / var(--tw-bg-opacity))",
-          "with-text-opacity": "hsla(var(--monochrome-color) / var(--tw-text-opacity))",
-          "with-border-opacity": "hsla(var(--monochrome-color) / var(--tw-border-opacity))"
+          "with-bg-opacity":
+            "hsla(var(--monochrome-color) / var(--tw-bg-opacity))",
+          "with-text-opacity":
+            "hsla(var(--monochrome-color) / var(--tw-text-opacity))",
+          "with-border-opacity":
+            "hsla(var(--monochrome-color) / var(--tw-border-opacity))",
         },
         primary: {
           DEFAULT: "hsl(var(--primary))",
@@ -39,6 +45,14 @@ module.exports = {
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
+        },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning-dark))",
+          200: "hsl(var(--warning-light))",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -71,12 +85,33 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: 0 },
         },
+        "gear-rotate-left": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
+        "gear-rotate-right": {
+          "0%": { transform: "rotate(360deg)" },
+          "100%": { transform: "rotate(0deg)" },
+        },
+        dash: {
+          "0%": { transform: "translate(2539.6383913420013px, 0)" },
+          "100%": { transform: "translate(-2539.6383913420013px, 0)" },
+        },
+        blink: {
+          "0%": { background: "hsl(var(--warning-light))", color: "#878c8e" },
+          "50%": { background: "transparent" },
+          "100%": { background: "hsl(var(--warning-light))", color: "#878c8e" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "gear-rotate-left": "gear-rotate-left 5s linear infinite",
+        "gear-rotate-right": "gear-rotate-right 5s linear infinite",
+        dash: "dash linear infinite",
+        blink: "blink 1.5s ease infinite",
       },
     },
   },
   plugins: [require("tailwindcss-animate")],
-}
+};

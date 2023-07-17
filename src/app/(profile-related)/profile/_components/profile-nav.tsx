@@ -13,22 +13,17 @@ import { Suspense, useState } from "react";
 
 const DeleteConfirmation = dynamic(() => import("./confirmation"));
 
-export default function ProfileNav({
-  displayName,
-  uid,
-}: {
-  displayName: string;
-  uid: string;
-}) {
+export default function ProfileNav({ displayName }: { displayName: string }) {
   const [willDelete, setWillDelete] = useState(false);
+
   return (
     <>
-      <div className="w-full flex justify-end">
+      <div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 px-0">
+            <Button variant="ghost" className="gap-2">
               <Icons.settings />
-              <span className="sr-only">Toggle theme</span>
+              Setting
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -37,7 +32,7 @@ export default function ProfileNav({
               className="cursor-pointer"
               onClick={() => setWillDelete(true)}
             >
-              <Trash className="mr-2 h-4 w-4 stroke-red-500" />
+              <Trash className="w-4 h-4 mr-2 stroke-red-500" />
               <span className="text-red-500">Delete Account</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -48,7 +43,6 @@ export default function ProfileNav({
           <DeleteConfirmation
             setWillDelete={setWillDelete}
             displayName={displayName}
-            uid={uid}
           />
         </Suspense>
       ) : null}

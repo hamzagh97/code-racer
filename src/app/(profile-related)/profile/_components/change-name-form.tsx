@@ -1,24 +1,27 @@
 "use client";
-import { useRouter } from "next/navigation";
-import { useRef } from "react";
-import { updateUserAction } from "../actions";
-import { throwError } from "@/lib/utils";
-import { EditableInput } from "@/components/ui/editable-input";
 
-async function handleSubmit({
-  newName,
-  currentName,
-}: {
-  newName: string;
-  currentName: string;
-}) {
-  if (newName === currentName) {
-    throwError(
-      new Error("The current username and the new one is still the same!")
-    );
-  }
-  await updateUserAction({ newName });
-}
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
+import { catchError } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { updateUserAction } from "../../../_actions/user";
+
+const updateUserSchema = z.object({
+  name: z
+    .string({
+      required_error: "Please enter a username",
+    })
+    .nonempty("Please enter a username"),
+});
+
+type UpdateUser = z.infer<typeof updateUserSchema>;
 
 export default function ChangeNameForm({
   displayName,
@@ -26,23 +29,75 @@ export default function ChangeNameForm({
   displayName: string | null | undefined;
 }) {
   const router = useRouter();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const session = useSession();
+  const form = useForm<UpdateUser>({
+    resolver: zodResolver(updateUserSchema),
+    mode: "onSubmit",
+    defaultValues: {
+      name: displayName ?? "",
+    },
+  });
+
+  const [isEditing, setIsEditing] = React.useState(false);
+
+  const { toast } = useToast();
+
+  async function onSubmit(data: UpdateUser) {
+    try {
+      await updateUserAction({ name: data.name });
+
+      toast({
+        title: "Username successfully updated.",
+        description: "Your username has been successfully updated.",
+        variant: "default",
+      });
+
+      await session.update({ name: data.name });
+
+      router.refresh();
+    } catch (error) {
+      catchError(error);
+    }
+  }
+
   return (
-    <div className="w-[75%] text-center mb-1">
-      <EditableInput
-        value={displayName ?? "Llama1203x"}
-        actionOnSave={async () => {
-          if (inputRef) {
-            await handleSubmit({
-              newName: inputRef.current?.value as string,
-              currentName: displayName as string,
-            });
-            router.refresh();
-          }
-        }}
-        ref={inputRef}
-        className="text-2xl font-bold"
-      />
-    </div>
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="w-[75%] text-center mb-4 mx-auto"
+      >
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <>
+                  <Input
+                    className="text-2xl text-center font-bold hover:border-dashed border hover:border-white"
+                    onFocus={() => setIsEditing(true)}
+                    {...field}
+                  />
+                  {isEditing && (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="reset"
+                        className="w-full"
+                        onClick={() => setIsEditing(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit" className="w-full">
+                        Submit
+                      </Button>
+                    </div>
+                  )}
+                </>
+              </FormControl>
+            </FormItem>
+          )}
+        />
+      </form>
+    </Form>
   );
 }

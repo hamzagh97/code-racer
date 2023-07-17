@@ -1,7 +1,10 @@
 "use client";
 
-import { signOut, useSession } from "next-auth/react";
-import Spinner from "./ui/spinner";
+import { signOut } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
+import { Icons } from "./icons";
+import { Button } from "./ui/button";
 import { LoginButton } from "./ui/buttons";
 import {
   DropdownMenu,
@@ -10,60 +13,73 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Button } from "./ui/button";
-import Link from "next/link";
-import { Icons } from "./icons";
-import Image from "next/image";
+import type { User } from "next-auth";
+import { UserRole } from "@prisma/client";
 
-export function UserDropdown() {
-  const session = useSession();
-
+export function UserDropdown({
+  user,
+}: {
+  user?: User & {
+    role: UserRole;
+  };
+}) {
   return (
-    <div className="flex gap-4 items-center">
+    <div className="flex items-center gap-4">
       <div className="flex justify-center">
-        {session.status === "loading" && <Spinner />}
-        {session.status === "unauthenticated" && <LoginButton />}
-        {session.status === "authenticated" && <AccountMenu />}
+        {user ? <AccountMenu user={user} /> : <LoginButton />}
       </div>
     </div>
   );
 }
 
-const AccountMenu = () => {
-  const session = useSession();
-
+const AccountMenu = ({
+  user,
+}: {
+  user: User & {
+    role: UserRole;
+  };
+}) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="flex gap-2 px-4">
           <Image
             className="rounded-full"
-            src={session?.data?.user.image ?? ""}
+            src={user.image ?? ""}
             alt="user avatar"
             height={30}
             width={30}
           />
-          <p className="whitespace-nowrap">{session?.data?.user?.name}</p>
+          <p className="whitespace-nowrap">{user.name}</p>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem>
-          <Link href="/dashboard" className="flex gap-1 items-center">
-            <Icons.lineChart className="mr-2 h-4 w-4" />
+        <DropdownMenuItem asChild>
+          <Link href="/dashboard/races" className="flex items-center gap-1">
+            <Icons.lineChart className="w-4 h-4 mr-2" />
             <span>Dashboard</span>
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Link href="/profile" className="flex gap-1 items-center">
-            <Icons.user className="mr-2 h-4 w-4" />
+        <DropdownMenuItem asChild>
+          <Link href="/profile" className="flex items-center gap-1">
+            <Icons.profile className="w-4 h-4 mr-2" />
             <span>Profile</span>
           </Link>
         </DropdownMenuItem>
+        {user.role === "ADMIN" && (
+          <DropdownMenuItem asChild>
+            <Link href="/review" className="flex items-center gap-1">
+              <Icons.review className="w-4 h-4 mr-2" />
+              <span>Review</span>
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem
+          className="text-red-500 hover:text-white focus:bg-destructive hover:cursor-pointer"
           onClick={() => signOut({ callbackUrl: `${window.location.origin}` })}
         >
-          <Icons.logout className="mr-2 h-4 w-4" />
+          <Icons.logout className="w-4 h-4 mr-2" />
           <span>Logout</span>
         </DropdownMenuItem>
       </DropdownMenuContent>

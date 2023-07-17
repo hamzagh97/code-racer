@@ -1,19 +1,44 @@
+import "@/styles/globals.css";
 import Header from "@/components/header";
-import "./globals.css";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Bruno_Ace_SC } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
 import { Footer } from "@/components/footer";
-import { ThemeProvider } from "@/components/theme-provider";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
+import { ContextProvider } from "@/components/context-provider";
+import { siteConfig } from "@/config/site";
+import { Toaster } from "@/components/ui/toaster";
+import { cn } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const bruno_ace_sc = Bruno_Ace_SC({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-bruno-ace-sc",
+  display: "swap",
+});
+
+const domain = process.env.NEXT_PUBLIC_DOMAIN;
+
 export const metadata: Metadata = {
-  title: "Code Racer",
-  description: "Accelerating coding skills, competitive thrills!",
+  title: siteConfig.name,
+  description: siteConfig.description,
   icons: {
     icon: "/static/logo.png",
+  },
+  openGraph: {
+    type: "website",
+    url: domain,
+    title: siteConfig.name,
+    description: siteConfig.description,
+    images: `${domain}/static/logo.png`,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Checkout Code Racer!",
+    description: siteConfig.description,
+    images: `${domain}/static/logo.png`,
   },
 };
 
@@ -23,15 +48,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <NextTopLoader showSpinner={false} />
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={cn(
+          "min-h-screen flex flex-col bg-background",
+          inter.className,
+          bruno_ace_sc.variable,
+        )}
+      >
+        <NextTopLoader showSpinner={false} color="#E7B008" />
+        <ContextProvider>
           <Header />
-          {children}
+          <div className="container py-2 h-fit md:py-18 grow">{children}</div>
           <Footer />
+          <Toaster />
           <TailwindIndicator />
-        </ThemeProvider>
+        </ContextProvider>
       </body>
     </html>
   );
